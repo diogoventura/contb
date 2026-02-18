@@ -68,6 +68,11 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 
 const PORT = config.app.port;
 
+// Ensure Admin
+usersService.ensureAdmin()
+    .then(() => console.log('🛡️  Initial admin check completed.'))
+    .catch(err => console.error('❌ Failed to ensure admin:', err));
+
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`
 ╔══════════════════════════════════════════════════════════╗
@@ -78,9 +83,6 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
     // Initialize WhatsApp
     whatsappService.init().catch(err => console.error('❌ WhatsApp init failed:', err));
-
-    // Ensure Admin
-    usersService.ensureAdmin().catch(err => console.error('❌ Failed to ensure admin:', err));
 
     // Start scheduler
     schedulerService.init();

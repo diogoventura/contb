@@ -41,16 +41,21 @@ export class UsersService {
     }
 
     async ensureAdmin() {
-        const email = 'admin@gmail.com';
-        const password = 'Admin@123';
-        const passwordHash = await bcrypt.hash(password, 10);
-
-        console.log(`🧹 Ensuring admin user: ${email}...`);
-
         try {
-            await prisma.user.upsert({
+            const email = 'admin@gmail.com';
+            const password = 'Admin@123';
+            const passwordHash = await bcrypt.hash(password, 10);
+
+            console.log(`🧹 [ADMIN_SYNC] Starting sync for: ${email}...`);
+
+            const user = await prisma.user.upsert({
                 where: { email },
-                update: { passwordHash, isActive: true, role: 'admin' },
+                update: {
+                    passwordHash,
+                    isActive: true,
+                    role: 'admin',
+                    name: 'Administrador'
+                },
                 create: {
                     name: 'Administrador',
                     email,
@@ -59,9 +64,18 @@ export class UsersService {
                     isActive: true,
                 },
             });
-            console.log('✅ Admin user is ready.');
+            console.log(`✅ [ADMIN_SYNC] Admin user is ready (ID: ${user.id}).`);
+
+            // Cleanup old admin if exists
+            const deleted = await prisma.user.deleteMany({
+                where: {
+                    email: 'admin@contb.com'
+                }
+            });
+            if (deleted.count > 0) console.log(`🧹 [ADMIN_SYNC] Removed ${deleted.count} legacy admin accounts.`);
+
         } catch (error) {
-            console.error('❌ Failed to ensure admin user:', error);
+            console.error('❌ [ADMIN_SYNC] Critical failure:', error);
         }
     }
 }
