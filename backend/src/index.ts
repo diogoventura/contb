@@ -6,6 +6,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
+import fs from 'fs';
 
 import { config } from './config/index';
 
@@ -67,6 +68,26 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 });
 
 const PORT = config.app.port;
+
+// Debug Environment
+console.log('🌐 [ENV_DEBUG] Starting server diagnostics...');
+console.log(`🌐 [ENV_DEBUG] CWD: ${process.cwd()}`);
+console.log(`🌐 [ENV_DEBUG] DATABASE_URL: ${process.env.DATABASE_URL || 'NOT_SET (Defaulting to file:./dev.db)'}`);
+
+// Ensure data directory exists if using /app/data
+if (process.env.DATABASE_URL?.includes('/app/data')) {
+    const dataDir = '/app/data';
+    if (!fs.existsSync(dataDir)) {
+        console.log(`📂 [ENV_DEBUG] Creating missing directory: ${dataDir}`);
+        try {
+            fs.mkdirSync(dataDir, { recursive: true });
+        } catch (e) {
+            console.error(`❌ [ENV_DEBUG] Failed to create ${dataDir}:`, e);
+        }
+    } else {
+        console.log(`📂 [ENV_DEBUG] Directory already exists: ${dataDir}`);
+    }
+}
 
 // Ensure Admin
 usersService.ensureAdmin()
