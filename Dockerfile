@@ -40,7 +40,7 @@ COPY --from=builder /build/frontend/dist ./public
 
 RUN npx prisma generate
 
-RUN mkdir -p /app/data /app/prisma/data && chmod -R 777 /app/data /app/prisma/data
+RUN mkdir -p /app/data && chmod -R 777 /app/data
 
 EXPOSE 3002
 
