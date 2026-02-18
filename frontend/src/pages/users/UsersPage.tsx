@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { usersApi } from '../../api';
-import { Plus, Edit2, Trash2, X, User, Shield, Mail, Phone, Calendar, Key } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, User, Shield, Mail, Phone, Calendar, Key, Eye, EyeOff } from 'lucide-react';
 
 export default function UsersPage() {
     const [users, setUsers] = useState<any[]>([]);
@@ -8,6 +8,7 @@ export default function UsersPage() {
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState<any>(null);
     const [form, setForm] = useState({ name: '', email: '', password: '', role: 'regular', phone: '' });
+    const [showPassword, setShowPassword] = useState(false);
 
     const load = () => {
         setLoading(true);
@@ -34,7 +35,7 @@ export default function UsersPage() {
     };
 
     const handleDelete = async (id: number) => {
-        if (!confirm('Deseja realmente excluir este utilizador?')) return;
+        if (!confirm('Deseja realmente excluir este usuário?')) return;
         await usersApi.delete(String(id));
         load();
     };
@@ -46,11 +47,11 @@ export default function UsersPage() {
         <div className="space-y-8 pb-10">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Utilizadores</h2>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Usuários</h2>
                     <p className="text-slate-600 text-sm mt-1 font-medium">Gerencie o acesso e permissões dos membros da sua equipe.</p>
                 </div>
                 <button onClick={openCreate} className="flex items-center gap-3 px-6 py-3 bg-primary-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-500 transition-all shadow-xl shadow-primary-500/20 active:scale-95">
-                    <Plus size={20} /> Novo Utilizador
+                    <Plus size={20} /> Novo Usuário
                 </button>
             </div>
 
@@ -107,7 +108,7 @@ export default function UsersPage() {
                     <div className="bg-white w-full max-w-lg p-8 rounded-[2.5rem] space-y-8 animate-in zoom-in-95 duration-300 shadow-2xl border border-white" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <h3 className="text-2xl font-black text-slate-900 tracking-tight">{editing ? 'Editar Utilizador' : 'Novo Utilizador'}</h3>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tight">{editing ? 'Editar Usuário' : 'Novo Usuário'}</h3>
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Defina as credenciais e nível de acesso</p>
                             </div>
                             <button onClick={() => setShowModal(false)} className="p-2.5 text-slate-500 hover:text-slate-600 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm transition-all hover:rotate-90"><X size={24} /></button>
@@ -137,10 +138,17 @@ export default function UsersPage() {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{editing ? 'Nova Palavra-passe (opcional)' : 'Palavra-passe de Acesso *'}</label>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{editing ? 'Nova Senha (opcional)' : 'Senha de Acesso *'}</label>
                                 <div className="relative group">
                                     <Key size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
-                                    <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••••" className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-amber-100/50 focus:bg-white focus:border-amber-200 transition-all text-sm shadow-sm" />
+                                    <input type={showPassword ? "text" : "password"} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••••" className="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-amber-100/50 focus:bg-white focus:border-amber-200 transition-all text-sm shadow-sm" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
                                 </div>
                             </div>
                             <div className="space-y-2">
@@ -159,7 +167,7 @@ export default function UsersPage() {
                         </div>
                         <div className="flex gap-4 pt-4">
                             <button onClick={() => setShowModal(false)} className="flex-1 py-4 text-sm font-black text-slate-500 uppercase tracking-widest hover:text-slate-600 transition-colors bg-slate-50 rounded-2xl border border-slate-100 mb-0">Cancelar</button>
-                            <button onClick={handleSave} className="flex-[2] py-4 text-sm bg-primary-600 text-white rounded-2xl hover:bg-primary-500 font-black uppercase tracking-widest transition-all shadow-xl shadow-primary-600/20 hover:shadow-2xl active:scale-95">Salvar Utilizador</button>
+                            <button onClick={handleSave} className="flex-[2] py-4 text-sm bg-primary-600 text-white rounded-2xl hover:bg-primary-500 font-black uppercase tracking-widest transition-all shadow-xl shadow-primary-600/20 hover:shadow-2xl active:scale-95">Salvar Usuário</button>
                         </div>
                     </div>
                 </div>
