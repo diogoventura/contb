@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { reportsApi } from '../../api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
 import { TrendingUp, DollarSign, Wallet, Package, Handshake, Calendar, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function ReportsPage() {
     const [summary, setSummary] = useState<any>(null);
@@ -27,14 +29,55 @@ export default function ReportsPage() {
         { title: 'Consórcios', value: summary?.activeConsortiums, icon: Handshake, color: 'text-orange-600', bg: 'bg-orange-50' },
     ];
 
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFontSize(22);
+        doc.text('Relatório Financeiro - SV Vendas', 14, 20);
+        doc.setFontSize(10);
+        doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 28);
+
+        // Summary Table
+        autoTable(doc, {
+            startY: 35,
+            head: [['Indicador', 'Valor']],
+            body: [
+                ['Receita Total', `R$ ${summary?.totalRevenue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+                ['A Receber (Pendentes)', `R$ ${summary?.pendingAmount?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+                ['Total de Vendas Ativas', summary?.totalSales.toString()],
+                ['Consórcios Ativos', summary?.activeConsortiums.toString()],
+            ],
+            theme: 'striped',
+            headStyles: { fillColor: [91, 36, 36] } // matches #5B2424
+        });
+
+        // Sales Flow Table
+        doc.setFontSize(14);
+        doc.text('Fluxo de Vendas Mensal', 14, (doc as any).lastAutoTable.finalY + 15);
+
+        autoTable(doc, {
+            startY: (doc as any).lastAutoTable.finalY + 20,
+            head: [['Mês', 'Volume de Vendas (R$)']],
+            body: salesData.map(item => [item.name, `R$ ${item.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`]),
+            theme: 'grid',
+            headStyles: { fillColor: [16, 185, 129] } // matches emerald-500 (#10b981)
+        });
+
+        doc.save(`relatorio-financeiro-${new Date().toISOString().split('T')[0]}.pdf`);
+    };
+
     return (
         <div className="space-y-8 pb-10">
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tight">Relatórios Financeiros</h2>
-                    <p className="text-slate-500 text-sm mt-1 font-medium">Análise detalhada de desempenho e saúde financeira.</p>
+                    <p className="text-slate-600 text-sm mt-1 font-medium">Análise detalhada de desempenho e saúde financeira.</p>
                 </div>
-                <button className="flex items-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all border border-slate-200 shadow-sm active:scale-95">
+                <button
+                    onClick={handleExportPDF}
+                    className="flex items-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all border border-slate-200 shadow-sm active:scale-95"
+                >
                     <Download size={18} /> Exportar PDF
                 </button>
             </div>
@@ -47,7 +90,7 @@ export default function ReportsPage() {
                             <card.icon size={28} />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{card.title}</p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{card.title}</p>
                             <p className="text-xl font-black text-slate-900 mt-0.5 tracking-tight">{card.value}</p>
                         </div>
                     </div>
@@ -73,8 +116,8 @@ export default function ReportsPage() {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                                <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} fontWeight="900" axisLine={false} tickLine={false} dy={10} />
-                                <YAxis stroke="#94a3b8" fontSize={10} fontWeight="900" axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} />
+                                <XAxis dataKey="name" stroke="#64748b" fontSize={10} fontWeight="900" axisLine={false} tickLine={false} dy={10} />
+                                <YAxis stroke="#64748b" fontSize={10} fontWeight="900" axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} />
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                                     itemStyle={{ color: '#0f172a', fontSize: '12px', fontWeight: '900' }}
@@ -96,8 +139,8 @@ export default function ReportsPage() {
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={salesData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                                <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} fontWeight="900" axisLine={false} tickLine={false} dy={10} />
-                                <YAxis stroke="#94a3b8" fontSize={10} fontWeight="900" axisLine={false} tickLine={false} />
+                                <XAxis dataKey="name" stroke="#64748b" fontSize={10} fontWeight="900" axisLine={false} tickLine={false} dy={10} />
+                                <YAxis stroke="#64748b" fontSize={10} fontWeight="900" axisLine={false} tickLine={false} />
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                                     cursor={{ fill: '#f8fafc' }}

@@ -39,7 +39,7 @@ export default function LoginPage() {
                         <Leaf className="h-8 w-8 text-white group-hover:scale-110 transition-transform" />
                     </div>
                     <h1 className="text-4xl font-black text-slate-900 tracking-tighter">SV</h1>
-                    <p className="text-slate-500 text-sm font-medium tracking-tight uppercase tracking-[0.1em]">Gestão de Vendas</p>
+                    <p className="text-slate-600 text-sm font-medium tracking-tight uppercase tracking-[0.1em]">Gestão de Vendas</p>
                 </div>
 
                 <div className="glass-card p-8 border border-white shadow-xl relative">
@@ -48,24 +48,24 @@ export default function LoginPage() {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Endereço de Email</label>
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Endereço de Email</label>
                             <div className="relative group">
-                                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
+                                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-primary-500 transition-colors" />
                                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 transition-all text-sm"
+                                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 transition-all text-sm"
                                     placeholder="exemplo@svvendas.com" />
                             </div>
                         </div>
 
                         <div className="space-y-1.5">
                             <div className="flex justify-between items-center ml-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Palavra-passe</label>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Palavra-passe</label>
                                 <button type="button" className="text-[10px] font-black text-primary-600 uppercase tracking-wider hover:text-primary-500 transition-colors">Esqueceu?</button>
                             </div>
                             <div className="relative group">
-                                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
+                                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-primary-500 transition-colors" />
                                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-                                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 transition-all text-sm"
+                                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 transition-all text-sm"
                                     placeholder="••••••••" />
                             </div>
                         </div>
@@ -89,7 +89,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="text-center pt-4">
-                    <p className="text-slate-500 text-xs font-medium">ContB © 2026 · Todos os direitos reservados</p>
+                    <p className="text-slate-600 text-xs font-medium">ContB © 2026 · Todos os direitos reservados</p>
                 </div>
             </div>
         </div>

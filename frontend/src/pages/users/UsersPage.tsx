@@ -47,7 +47,7 @@ export default function UsersPage() {
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tight">Utilizadores</h2>
-                    <p className="text-slate-500 text-sm mt-1 font-medium">Gerencie o acesso e permissões dos membros da sua equipe.</p>
+                    <p className="text-slate-600 text-sm mt-1 font-medium">Gerencie o acesso e permissões dos membros da sua equipe.</p>
                 </div>
                 <button onClick={openCreate} className="flex items-center gap-3 px-6 py-3 bg-primary-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-500 transition-all shadow-xl shadow-primary-500/20 active:scale-95">
                     <Plus size={20} /> Novo Utilizador
@@ -73,9 +73,9 @@ export default function UsersPage() {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button onClick={() => openEdit(u)} className="p-2.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all border border-transparent hover:border-primary-100 active:scale-90" title="Editar"><Edit2 size={18} /></button>
+                                    <button onClick={() => openEdit(u)} className="p-2.5 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all border border-transparent hover:border-primary-100 active:scale-90" title="Editar"><Edit2 size={18} /></button>
                                     {u.role !== 'admin' && (
-                                        <button onClick={() => handleDelete(u.id)} className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 active:scale-90" title="Excluir"><Trash2 size={18} /></button>
+                                        <button onClick={() => handleDelete(u.id)} className="p-2.5 text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 active:scale-90" title="Excluir"><Trash2 size={18} /></button>
                                     )}
                                 </div>
                             </div>
@@ -91,8 +91,8 @@ export default function UsersPage() {
                                         <span>{u.phone}</span>
                                     </div>
                                 )}
-                                <div className="flex items-center gap-3 text-[10px] text-slate-400 font-black uppercase tracking-widest pt-1 pl-1">
-                                    <Calendar size={14} className="text-slate-300" />
+                                <div className="flex items-center gap-3 text-[10px] text-slate-500 font-black uppercase tracking-widest pt-1 pl-1">
+                                    <Calendar size={14} className="text-slate-400" />
                                     <span>Desde {new Date(u.createdAt).toLocaleDateString('pt-BR')}</span>
                                 </div>
                             </div>
@@ -108,57 +108,57 @@ export default function UsersPage() {
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
                                 <h3 className="text-2xl font-black text-slate-900 tracking-tight">{editing ? 'Editar Utilizador' : 'Novo Utilizador'}</h3>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Defina as credenciais e nível de acesso</p>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Defina as credenciais e nível de acesso</p>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="p-2.5 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm transition-all hover:rotate-90"><X size={24} /></button>
+                            <button onClick={() => setShowModal(false)} className="p-2.5 text-slate-500 hover:text-slate-600 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm transition-all hover:rotate-90"><X size={24} /></button>
                         </div>
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome Completo *</label>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nome Completo *</label>
                                 <div className="relative group">
-                                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary-600 transition-colors" />
+                                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-600 transition-colors" />
                                     <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Ex: Diogo Almeida" className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-primary-100/50 focus:bg-white focus:border-primary-200 transition-all text-sm shadow-sm" />
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">E-mail de Acesso *</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">E-mail de Acesso *</label>
                                     <div className="relative group">
-                                        <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary-600 transition-colors" />
+                                        <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-600 transition-colors" />
                                         <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="email@exemplo.com" className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-primary-100/50 focus:bg-white focus:border-primary-200 transition-all text-sm shadow-sm" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Telefone</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Telefone</label>
                                     <div className="relative group">
-                                        <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-emerald-500 transition-colors" />
+                                        <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                                         <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="(00) 00000-0000" className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-emerald-100/50 focus:bg-white focus:border-emerald-200 transition-all text-sm shadow-sm" />
                                     </div>
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{editing ? 'Nova Palavra-passe (opcional)' : 'Palavra-passe de Acesso *'}</label>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{editing ? 'Nova Palavra-passe (opcional)' : 'Palavra-passe de Acesso *'}</label>
                                 <div className="relative group">
-                                    <Key size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" />
+                                    <Key size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
                                     <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••••" className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-amber-100/50 focus:bg-white focus:border-amber-200 transition-all text-sm shadow-sm" />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nível de Acesso (Função)</label>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nível de Acesso (Função)</label>
                                 <div className="relative group">
-                                    <Shield size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-purple-500 transition-colors z-10" />
+                                    <Shield size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-500 transition-colors z-10" />
                                     <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="w-full pl-12 pr-10 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-purple-100/50 focus:bg-white focus:border-purple-200 transition-all text-sm shadow-sm appearance-none relative">
                                         <option value="regular">Membro Padrão (Vendedor)</option>
                                         <option value="admin">Administrador (Acesso Total)</option>
                                     </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
                                         <Calendar size={16} />
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div className="flex gap-4 pt-4">
-                            <button onClick={() => setShowModal(false)} className="flex-1 py-4 text-sm font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors bg-slate-50 rounded-2xl border border-slate-100 mb-0">Cancelar</button>
+                            <button onClick={() => setShowModal(false)} className="flex-1 py-4 text-sm font-black text-slate-500 uppercase tracking-widest hover:text-slate-600 transition-colors bg-slate-50 rounded-2xl border border-slate-100 mb-0">Cancelar</button>
                             <button onClick={handleSave} className="flex-[2] py-4 text-sm bg-primary-600 text-white rounded-2xl hover:bg-primary-500 font-black uppercase tracking-widest transition-all shadow-xl shadow-primary-600/20 hover:shadow-2xl active:scale-95">Salvar Utilizador</button>
                         </div>
                     </div>

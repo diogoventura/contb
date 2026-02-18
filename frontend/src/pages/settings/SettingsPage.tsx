@@ -101,14 +101,14 @@ export default function SettingsPage() {
         <div className="max-w-4xl mx-auto space-y-10 pb-20 animate-in fade-in duration-500">
             <div>
                 <h2 className="text-4xl font-black text-slate-900 tracking-tight">Configurações</h2>
-                <p className="text-slate-500 text-sm mt-1 font-medium">Gerencie as preferências globais e integrações da plataforma.</p>
+                <p className="text-slate-600 text-sm mt-1 font-medium">Gerencie as preferências globais e integrações da plataforma.</p>
             </div>
 
             {/* Tabs */}
             <div className="flex p-2 bg-slate-50 border border-slate-100 rounded-[2rem] w-fit shadow-sm">
                 {tabs.map(tab => (
                     <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                        className={`flex items-center gap-3 px-8 py-3.5 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/30' : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'}`}>
+                        className={`flex items-center gap-3 px-8 py-3.5 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/30' : 'text-slate-500 hover:text-slate-600 hover:bg-white/50'}`}>
                         <tab.icon size={20} /> {tab.name}
                     </button>
                 ))}
@@ -124,24 +124,24 @@ export default function SettingsPage() {
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Lembrar antes do vencimento (Dias)</label>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Lembrar antes do vencimento (Dias)</label>
                                 <div className="flex gap-4">
                                     <input type="number" defaultValue={getVal('reminder_days_before') || '1'} id="reminder_before"
                                         className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-slate-900 font-bold focus:ring-4 focus:ring-primary-100/50 focus:outline-none focus:bg-white focus:border-primary-200 transition-all shadow-inner" />
                                     <button onClick={() => handleSaveSetting('reminder_days_before', (document.getElementById('reminder_before') as HTMLInputElement).value)}
                                         className="px-8 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95">Definir</button>
                                 </div>
-                                <p className="text-[10px] text-slate-400 font-medium px-1 flex items-center gap-2 mt-2"><CheckCircle size={12} className="text-primary-500" /> Enviará lembrete automático X dias antes.</p>
+                                <p className="text-[10px] text-slate-500 font-medium px-1 flex items-center gap-2 mt-2"><CheckCircle size={12} className="text-primary-500" /> Enviará lembrete automático X dias antes.</p>
                             </div>
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Aviso após vencimento (Intervalo)</label>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Aviso após vencimento (Intervalo)</label>
                                 <div className="flex gap-4">
                                     <input type="number" defaultValue={getVal('reminder_interval_after') || '3'} id="reminder_after"
                                         className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-slate-900 font-bold focus:ring-4 focus:ring-primary-100/50 focus:outline-none focus:bg-white focus:border-primary-200 transition-all shadow-inner" />
                                     <button onClick={() => handleSaveSetting('reminder_interval_after', (document.getElementById('reminder_after') as HTMLInputElement).value)}
                                         className="px-8 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95">Definir</button>
                                 </div>
-                                <p className="text-[10px] text-slate-400 font-medium px-1 flex items-center gap-2 mt-2"><CheckCircle size={12} className="text-primary-500" /> Repetirá o aviso a cada X dias de atraso.</p>
+                                <p className="text-[10px] text-slate-500 font-medium px-1 flex items-center gap-2 mt-2"><CheckCircle size={12} className="text-primary-500" /> Repetirá o aviso a cada X dias de atraso.</p>
                             </div>
                         </div>
                     </div>
@@ -161,7 +161,7 @@ export default function SettingsPage() {
                                 </div>
                                 <div className="flex-1">
                                     <p className="font-black text-slate-900 text-xl tracking-tight">{wsStatus?.isReady ? 'WhatsApp Conectado' : 'WhatsApp Desconectado'}</p>
-                                    <p className="text-sm text-slate-500 font-medium">As notificações automáticas dependem desta conexão ativa e estável.</p>
+                                    <p className="text-sm text-slate-600 font-medium">As notificações automáticas dependem desta conexão ativa e estável.</p>
                                 </div>
                                 {wsStatus?.isReady && (
                                     <button onClick={async () => { await whatsappApi.logout(); loadSettings(); }} className="px-8 py-3.5 bg-red-50 text-red-600 border border-red-100 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-sm active:scale-95">
@@ -177,7 +177,7 @@ export default function SettingsPage() {
                                             <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 border border-primary-100 shrink-0 mt-1"><QrCode size={20} /></div>
                                             <div className="space-y-3">
                                                 <p className="text-lg font-black text-slate-900 tracking-tight">Como conectar?</p>
-                                                <ul className="text-xs text-slate-500 space-y-3 font-medium leading-relaxed">
+                                                <ul className="text-xs text-slate-600 space-y-3 font-medium leading-relaxed">
                                                     <li className="flex items-center gap-2"><span className="w-5 h-5 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-black text-slate-900 shrink-0">1</span> Abra o WhatsApp no seu telemóvel</li>
                                                     <li className="flex items-center gap-2"><span className="w-5 h-5 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-black text-slate-900 shrink-0">2</span> Toque em Dispositivos Conectados</li>
                                                     <li className="flex items-center gap-2"><span className="w-5 h-5 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-black text-slate-900 shrink-0">3</span> Clique em Conectar um dispositivo</li>
@@ -225,7 +225,7 @@ export default function SettingsPage() {
                             { key: 'company_phone', label: 'Telefone para Boletos / Contato', placeholder: '+55 11 9999-9999' },
                         ].map((field) => (
                             <div key={field.key} className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{field.label}</label>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{field.label}</label>
                                 <input value={(companyForm as any)[field.key]} onChange={e => setCompanyForm({ ...companyForm, [field.key]: e.target.value })} placeholder={field.placeholder}
                                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-slate-900 font-bold focus:ring-4 focus:ring-primary-100/50 focus:outline-none focus:bg-white focus:border-primary-200 transition-all text-sm shadow-inner" />
                             </div>
