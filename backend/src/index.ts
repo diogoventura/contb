@@ -84,9 +84,23 @@ console.log(`🌐 [ENV_DEBUG] Resolved DATABASE_URL: ${dbUrl}`);
 // Safely log environment keys
 console.log(`🌐 [ENV_DEBUG] Env Keys: ${Object.keys(process.env).filter(k => !k.toLowerCase().includes('hash') && !k.toLowerCase().includes('secret') && !k.toLowerCase().includes('password')).join(', ')}`);
 
-// Ensure data directory exists if using /app/data or /data
-['/app/data', '/data'].forEach(dataDir => {
-    if (process.env.DATABASE_URL?.includes(dataDir)) {
+// Inspect common paths
+['/app', '/app/prisma', '/app/data', '/app/prisma/data'].forEach(dir => {
+    try {
+        if (fs.existsSync(dir)) {
+            const files = fs.readdirSync(dir);
+            console.log(`📂 [ENV_DEBUG] Directory ${dir} exists. Contents: ${files.join(', ') || '(empty)'}`);
+        } else {
+            console.log(`📂 [ENV_DEBUG] Directory ${dir} does not exist.`);
+        }
+    } catch (e) {
+        console.error(`❌ [ENV_DEBUG] Error reading ${dir}:`, e);
+    }
+});
+
+// Ensure data directory exists if using /app/data, /data, or /app/prisma/data
+['/app/data', '/data', '/app/prisma/data'].forEach(dataDir => {
+    if (dbUrl.includes(dataDir)) {
         if (!fs.existsSync(dataDir)) {
             console.log(`📂 [ENV_DEBUG] Creating missing directory: ${dataDir}`);
             try {
