@@ -40,6 +40,8 @@ COPY --from=builder /build/frontend/dist ./public
 
 RUN npx prisma generate
 
+RUN mkdir -p /app/data
+
 EXPOSE 3002
 
 CMD ["node", "dist/index.js"]
