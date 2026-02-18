@@ -85,6 +85,22 @@ export default function LoginPage() {
                                 </>
                             )}
                         </button>
+
+                        <div className="pt-2">
+                            <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-2">
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Acesso Demonstrativo</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-0.5">
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Login</p>
+                                        <p className="text-[11px] font-black text-slate-900">admin@gmail.com</p>
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Senha</p>
+                                        <p className="text-[11px] font-black text-slate-900">Admin@123</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
 
