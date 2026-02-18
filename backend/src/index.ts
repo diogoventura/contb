@@ -72,7 +72,13 @@ const PORT = config.app.port;
 // Debug Environment
 console.log('🌐 [ENV_DEBUG] Starting server diagnostics...');
 console.log(`🌐 [ENV_DEBUG] CWD: ${process.cwd()}`);
-console.log(`🌐 [ENV_DEBUG] DATABASE_URL: ${process.env.DATABASE_URL || 'NOT_SET'}`);
+
+let dbUrl = process.env.DATABASE_URL || 'file:./prisma/dev.db';
+// Fix for common Railway SQLite absolute path issues
+if (dbUrl === 'file:/app/data/contb.db' || dbUrl.includes('/app/data')) {
+    console.log('🌐 [ENV_DEBUG] Detected absolute /app/data path. Ensuring directory exists...');
+}
+console.log(`🌐 [ENV_DEBUG] Resolved DATABASE_URL: ${dbUrl}`);
 
 // Safely log environment keys
 console.log(`🌐 [ENV_DEBUG] Env Keys: ${Object.keys(process.env).filter(k => !k.toLowerCase().includes('hash') && !k.toLowerCase().includes('secret') && !k.toLowerCase().includes('password')).join(', ')}`);
