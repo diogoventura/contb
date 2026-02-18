@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #FAF6F0;
+    /* Creamy light background */
+    color: #1F2937;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F3F4F6;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
+
+/* Glass card effect - updated for light theme */
+.glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+}
+
+/* Gradient text - updated to brand primary/accent */
+.gradient-text {
+    background: linear-gradient(135deg, #5B2424, #74B62E);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Pulse animation */
+@keyframes pulse-soft {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.pulse-soft {
+    animation: pulse-soft 2s ease-in-out infinite;
+}
+
+/* Subtle hover transition */
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Status badges */
+.badge-success {
+    @apply bg-accent-50 text-accent-600 border border-accent-200;
+}
+
+.badge-warning {
+    @apply bg-amber-50 text-amber-600 border border-amber-200;
+}
+
+.badge-danger {
+    @apply bg-red-50 text-red-600 border border-red-200;
+}
+
+.badge-info {
+    @apply bg-blue-50 text-blue-600 border border-blue-200;
+}
