@@ -39,6 +39,31 @@ export class UsersService {
     async delete(id: number) {
         return prisma.user.delete({ where: { id } });
     }
+
+    async ensureAdmin() {
+        const email = 'admin@gmail.com';
+        const password = 'Admin@123';
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        console.log(`🧹 Ensuring admin user: ${email}...`);
+
+        try {
+            await prisma.user.upsert({
+                where: { email },
+                update: { passwordHash, isActive: true, role: 'admin' },
+                create: {
+                    name: 'Administrador',
+                    email,
+                    passwordHash,
+                    role: 'admin',
+                    isActive: true,
+                },
+            });
+            console.log('✅ Admin user is ready.');
+        } catch (error) {
+            console.error('❌ Failed to ensure admin user:', error);
+        }
+    }
 }
 
 export const usersService = new UsersService();

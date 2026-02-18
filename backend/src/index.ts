@@ -24,6 +24,7 @@ import settingsController from './modules/settings/settings.controller';
 // Import services
 import { whatsappService } from './modules/whatsapp/whatsapp.service';
 import { schedulerService } from './modules/scheduler/scheduler.service';
+import { usersService } from './modules/users/users.service';
 
 const app = express();
 
@@ -77,6 +78,9 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
     // Initialize WhatsApp
     whatsappService.init().catch(err => console.error('❌ WhatsApp init failed:', err));
+
+    // Ensure Admin
+    usersService.ensureAdmin().catch(err => console.error('❌ Failed to ensure admin:', err));
 
     // Start scheduler
     schedulerService.init();
