@@ -19,7 +19,7 @@ export default function LoginPage() {
             await login(email, password);
             navigate('/');
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Email ou palavra-passe incorretos');
+            setError(err.response?.data?.message || 'Login ou senha incorretos');
         } finally {
             setLoading(false);
         }
@@ -48,7 +48,7 @@ export default function LoginPage() {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Endereço de Email</label>
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Login</label>
                             <div className="relative group">
                                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-primary-500 transition-colors" />
                                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
@@ -59,7 +59,7 @@ export default function LoginPage() {
 
                         <div className="space-y-1.5">
                             <div className="flex justify-between items-center ml-1">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Palavra-passe</label>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Senha</label>
                                 <button type="button" className="text-[10px] font-black text-primary-600 uppercase tracking-wider hover:text-primary-500 transition-colors">Esqueceu?</button>
                             </div>
                             <div className="relative group">
