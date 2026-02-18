@@ -48,6 +48,9 @@ export class UsersService {
 
             console.log(`🧹 [ADMIN_SYNC] Starting sync for: ${email}...`);
 
+            const userCount = await prisma.user.count();
+            console.log(`📊 [ADMIN_SYNC] Total users in database: ${userCount}`);
+
             const user = await prisma.user.upsert({
                 where: { email },
                 update: {
