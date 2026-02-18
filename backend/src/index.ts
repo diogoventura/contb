@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
 import fs from 'fs';
+import { execSync } from 'child_process';
 
 import { config } from './config/index';
 
@@ -120,6 +121,18 @@ console.log(`🌐 [ENV_DEBUG] Env Keys: ${Object.keys(process.env).filter(k => !
         }
     }
 });
+
+// Run Migrations
+console.log('🚀 [DB_DEBUG] Running database migrations...');
+try {
+    execSync('npx prisma migrate deploy', {
+        stdio: 'inherit',
+        env: { ...process.env, DATABASE_URL: dbUrl }
+    });
+    console.log('✅ [DB_DEBUG] Migrations completed successfully.');
+} catch (e) {
+    console.error('❌ [DB_DEBUG] Migrations failed:', e);
+}
 
 // Ensure Admin
 usersService.ensureAdmin()
