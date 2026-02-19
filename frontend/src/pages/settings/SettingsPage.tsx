@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { settingsApi, whatsappApi } from '../../api';
-import { Settings, Bell, Building, Save, Smartphone, CheckCircle, AlertTriangle, X, Loader2, QrCode } from 'lucide-react';
+import { Settings, Bell, Building, Save, Smartphone, CheckCircle, AlertTriangle, X, Loader2, QrCode, Clock } from 'lucide-react';
 
 export default function SettingsPage() {
     const [settings, setSettings] = useState<any[]>([]);
@@ -14,6 +14,14 @@ export default function SettingsPage() {
         company_cnpj: '',
         company_address: '',
         company_phone: ''
+    });
+
+    const [tempOverdue, setTempOverdue] = useState({
+        enabled: '',
+        freq: '',
+        day: '',
+        hour: '',
+        minute: ''
     });
 
     const loadSettings = async () => {
@@ -59,6 +67,34 @@ export default function SettingsPage() {
             await loadSettings();
             alert('Dados da empresa atualizados com sucesso!');
         } catch (e) { alert('Erro ao salvar dados da empresa.'); }
+        finally { setSaving(false); }
+    };
+
+    useEffect(() => {
+        if (settings.length > 0) {
+            setTempOverdue({
+                enabled: getVal('overdue_notif_enabled') || 'false',
+                freq: getVal('overdue_notif_freq') || 'weekly',
+                day: getVal('overdue_notif_day') || '1',
+                hour: getVal('overdue_notif_hour') || '09',
+                minute: getVal('overdue_notif_minute') || '00'
+            });
+        }
+    }, [settings]);
+
+    const handleSaveOverdue = async () => {
+        setSaving(true);
+        try {
+            await Promise.all([
+                settingsApi.save('overdue_notif_enabled', tempOverdue.enabled),
+                settingsApi.save('overdue_notif_freq', tempOverdue.freq),
+                settingsApi.save('overdue_notif_day', tempOverdue.day),
+                settingsApi.save('overdue_notif_hour', tempOverdue.hour),
+                settingsApi.save('overdue_notif_minute', tempOverdue.minute)
+            ]);
+            await loadSettings();
+            alert('Agendamento de notificações atualizado!');
+        } catch (e) { alert('Erro ao salvar agendamento.'); }
         finally { setSaving(false); }
     };
 
@@ -144,6 +180,73 @@ export default function SettingsPage() {
                                 <p className="text-[10px] text-slate-500 font-medium px-1 flex items-center gap-2 mt-2"><CheckCircle size={12} className="text-primary-500" /> Repetirá o aviso a cada X dias de atraso.</p>
                             </div>
                         </div>
+                    </div>
+
+                    {/* New: Overdue Scheduler Section */}
+                    <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-2 h-full bg-amber-500/20" />
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                            <h3 className="text-sm font-black text-slate-900 flex items-center gap-3 uppercase tracking-widest">
+                                <div className="p-3 bg-amber-50 rounded-2xl text-amber-600 border border-amber-100"><Clock size={24} /></div>
+                                Agendamento de Notificações de Atraso
+                            </h3>
+                            <button
+                                onClick={handleSaveOverdue}
+                                disabled={saving}
+                                className="flex items-center gap-2 px-8 py-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95"
+                            >
+                                {saving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
+                                Salvar Agendamento
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Status</label>
+                                <select value={tempOverdue.enabled} onChange={(e) => setTempOverdue({ ...tempOverdue, enabled: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-100/50 outline-none transition-all">
+                                    <option value="true">Ativado</option>
+                                    <option value="false">Desativado</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Frequência</label>
+                                <select value={tempOverdue.freq} onChange={(e) => setTempOverdue({ ...tempOverdue, freq: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-100/50 outline-none transition-all">
+                                    <option value="weekly">Semanal</option>
+                                    <option value="monthly">Mensal</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                                    {tempOverdue.freq === 'monthly' ? 'Dia do Mês' : 'Dia da Semana'}
+                                </label>
+                                <select value={tempOverdue.day} onChange={(e) => setTempOverdue({ ...tempOverdue, day: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-100/50 outline-none transition-all">
+                                    {tempOverdue.freq === 'monthly' ? (
+                                        Array.from({ length: 31 }, (_, i) => i + 1).map(d => <option key={d} value={String(d)}>{d}</option>)
+                                    ) : (
+                                        ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'].map((d, i) => <option key={i + 1} value={String(i + 1)}>{d}</option>)
+                                    )}
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Hora de Envio</label>
+                                <input type="time" value={`${tempOverdue.hour}:${tempOverdue.minute}`}
+                                    onChange={(e) => {
+                                        const [h, m] = e.target.value.split(':');
+                                        setTempOverdue({ ...tempOverdue, hour: h, minute: m });
+                                    }}
+                                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-100/50 outline-none transition-all" />
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-slate-500 font-medium px-1 flex items-center gap-2 mt-6">
+                            <AlertTriangle size={12} className="text-amber-500" />
+                            Este serviço enviará lembretes de todos os boletos vencidos automaticamente no horário definido.
+                        </p>
                     </div>
 
                     <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">

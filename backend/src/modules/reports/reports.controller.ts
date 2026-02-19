@@ -17,4 +17,10 @@ router.get('/sales-by-month', async (req: AuthRequest, res: Response): Promise<v
     } catch (e) { res.status(500).json({ error: (e as Error).message }); }
 });
 
+router.get('/insights', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        res.json(await reportsService.getInsights());
+    } catch (e) { res.status(500).json({ error: (e as Error).message }); }
+});
+
 export default router;

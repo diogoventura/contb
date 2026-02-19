@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, ShoppingCart, Calendar, ChevronDown, ChevronUp, FileText, CheckCircle2, Clock, Trash2, X, AlertCircle, Eye, User, Phone, Mail, Package, Bell } from 'lucide-react';
-import { salesApi, productsApi } from '../../api';
+import { Plus, ShoppingCart, Calendar, ChevronDown, ChevronUp, FileText, CheckCircle2, Clock, Trash2, X, AlertCircle, Eye, User, Phone, Mail, Package, Bell, Share2 } from 'lucide-react';
+import { salesApi, productsApi, api } from '../../api';
+
 
 export default function SalesPage() {
     const [sales, setSales] = useState<any[]>([]);
@@ -235,6 +236,21 @@ export default function SalesPage() {
                                                                     <div className="flex items-center gap-1.5 border-l border-slate-100 pl-4">
                                                                         <button onClick={() => handlePayInstallment(inst.id)} className="p-2.5 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-emerald-100" title="Marcar como Pago"><CheckCircle2 size={18} /></button>
                                                                         <button onClick={() => handleGenerateBoleto(inst.id)} className="p-2.5 text-primary-600 hover:bg-primary-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-primary-100" title="Gerar Boleto"><FileText size={18} /></button>
+                                                                        <button
+                                                                            onClick={async (e) => {
+                                                                                e.stopPropagation();
+                                                                                try {
+                                                                                    await api.post(`/sales/installments/${inst.id}/send-whatsapp`);
+                                                                                    alert('Boleto enviado com sucesso via WhatsApp!');
+                                                                                } catch (err: any) {
+                                                                                    alert('Erro ao enviar: ' + (err.response?.data?.error || err.message));
+                                                                                }
+                                                                            }}
+                                                                            className="p-2.5 text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-emerald-100"
+                                                                            title="Enviar via WhatsApp"
+                                                                        >
+                                                                            <Share2 size={18} />
+                                                                        </button>
                                                                     </div>
                                                                 )}
                                                                 {inst.boletoUrl && (

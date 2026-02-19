@@ -1,30 +1,53 @@
 import prisma from '../../config/database';
 import { addMonths } from 'date-fns';
 import { whatsappService } from '../whatsapp/whatsapp.service';
+import { pdfService } from '../pdf/pdf.service';
+// @ts-ignore
+import { MessageMedia } from 'whatsapp-web.js';
 
 export class SalesService {
     async bulkNotify(installmentIds: number[]) {
-        const results = [];
         const installments = await prisma.installment.findMany({
             where: { id: { in: installmentIds } },
             include: { sale: true }
         });
 
+        // Group by phone
+        const groups: Record<string, { name: string, items: any[] }> = {};
         for (const inst of installments) {
-            if (!inst.sale.personPhone) {
-                results.push({ id: inst.id, success: false, error: 'Sem telefone' });
-                continue;
-            }
+            if (!inst.sale.personPhone) continue;
+            const phone = inst.sale.personPhone;
+            if (!groups[phone]) groups[phone] = { name: inst.sale.personName, items: [] };
+            groups[phone].items.push(inst);
+        }
 
-            const message = `📋 *Lembrete de Pagamento*\n\nOlá ${inst.sale.personName},\n\nPassando para lembrar que sua parcela nº ${inst.number} no valor de R$${Number(inst.amount).toFixed(2)} está ${inst.status === 'overdue' ? '*atrasada*' : 'pendente'} (Vencimento: ${inst.dueDate.toLocaleDateString('pt-BR')}).\n\nCaso já tenha realizado o pagamento, desconsidere esta mensagem.\n\nObrigado! 🙏`;
+        const results = [];
+        for (const [phone, data] of Object.entries(groups)) {
+            let message = `Olá ${data.name}, gostaria de lembrar o Pagamento dos boletos abaixo:\n\n`;
+            for (const item of data.items) {
+                message += `• Boleto #${item.saleId} parcela ${item.number} - R$${Number(item.amount).toFixed(2)} (venc. ${item.dueDate.toLocaleDateString('pt-BR')})\n`;
+            }
+            message += `\nCaso já tenha realizado o pagamento, desconsidere esta mensagem.\nObrigado! 🙏`;
 
             try {
-                await whatsappService.sendMessage(inst.sale.personPhone, message);
-                results.push({ id: inst.id, success: true });
+                const success = await whatsappService.sendMessage(phone, message);
+                for (const item of data.items) {
+                    results.push({ id: item.id, success });
+                }
             } catch (error) {
-                results.push({ id: inst.id, success: false, error: (error as Error).message });
+                for (const item of data.items) {
+                    results.push({ id: item.id, success: false, error: (error as Error).message });
+                }
             }
         }
+
+        // Add failures for those without phone
+        const notifiedIds = installments.map(i => i.id);
+        const originalIds = installments.filter(i => !i.sale.personPhone).map(i => i.id);
+        for (const id of originalIds) {
+            results.push({ id, success: false, error: 'Sem telefone' });
+        }
+
         return results;
     }
 
@@ -190,6 +213,26 @@ export class SalesService {
             barCode: '34191.98084 11190.000007 27103.042308 9 70410000038383',
             installmentId
         };
+    }
+
+    async sendBoletoWhatsApp(installmentId: number) {
+        const inst = await prisma.installment.findUnique({
+            where: { id: installmentId },
+            include: { sale: true }
+        });
+        if (!inst) throw new Error('Parcela não encontrada');
+        if (!inst.sale.personPhone) throw new Error('Cliente sem telefone cadastrado');
+
+        const pdfBuffer = await pdfService.generateBoletoPDF(installmentId);
+        const media = new MessageMedia(
+            'application/pdf',
+            pdfBuffer.toString('base64'),
+            `boleto-parcela-${inst.number}.pdf`
+        );
+
+        const caption = `📄 *Boleto de Pagamento*\n\nOlá ${inst.sale.personName},\n\nSegue em anexo o boleto da sua parcela nº ${inst.number} no valor de R$${Number(inst.amount).toFixed(2)}.\n\nObrigado! 🙏`;
+
+        return whatsappService.sendMediaMessage(inst.sale.personPhone, media, caption);
     }
 
     async renderBoletoHTML(installmentId: number) {

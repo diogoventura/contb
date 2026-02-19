@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { authMiddleware, adminMiddleware, AuthRequest } from '../../middleware/index';
 import { settingsService } from './settings.service';
+import { schedulerService } from '../scheduler/scheduler.service';
 
 const router = Router();
 router.use(authMiddleware);
@@ -15,7 +16,14 @@ router.get('/', async (req: AuthRequest, res: Response): Promise<void> => {
 router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const { key, value } = req.body;
-        res.json(await settingsService.set(key, String(value)));
+        const result = await settingsService.set(key, String(value));
+
+        // If overdue settings changed, reschedule
+        if (key.startsWith('overdue_notif_')) {
+            await schedulerService.rescheduleOverdueJob();
+        }
+
+        res.json(result);
     } catch (e) { res.status(500).json({ error: (e as Error).message }); }
 });
 

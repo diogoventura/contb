@@ -76,6 +76,14 @@ router.post('/installments/:installmentId/boleto', async (req: AuthRequest, res:
     } catch (e) { res.status(500).json({ error: (e as Error).message }); }
 });
 
+router.post('/installments/:installmentId/send-whatsapp', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const id = parseInt(req.params.installmentId as string);
+        const success = await salesService.sendBoletoWhatsApp(id);
+        res.json({ success });
+    } catch (e) { res.status(500).json({ error: (e as Error).message }); }
+});
+
 router.post('/installments/bulk-notify', async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const { installmentIds } = req.body;

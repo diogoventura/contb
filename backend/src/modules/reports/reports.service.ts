@@ -1,4 +1,5 @@
 import prisma from '../../config/database';
+import { insightService } from './insight.service';
 
 export class ReportsService {
     async getSummary() {
@@ -57,6 +58,10 @@ export class ReportsService {
         });
 
         return Object.entries(months).map(([name, total]) => ({ name, total }));
+    }
+
+    async getInsights() {
+        return insightService.getInsights();
     }
 }
 

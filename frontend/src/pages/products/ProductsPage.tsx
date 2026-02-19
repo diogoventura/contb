@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { productsApi } from '../../api';
-import { Plus, Search, Edit2, Trash2, X, Package, AlertTriangle, Eye, DollarSign, History, TrendingUp, BarChart3, Info } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, X, Package, AlertTriangle, Eye, DollarSign, History, TrendingUp, BarChart3, Info, Database } from 'lucide-react';
+import { productsApi, api } from '../../api';
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<any[]>([]);
@@ -11,6 +11,8 @@ export default function ProductsPage() {
     const [editing, setEditing] = useState<any>(null);
     const [form, setForm] = useState({ name: '', description: '', sku: '', unitPrice: '', costPrice: '', quantity: '', minStock: '' });
     const [search, setSearch] = useState('');
+    const [showBulkModal, setShowBulkModal] = useState(false);
+    const [bulkText, setBulkText] = useState('');
 
     const load = () => {
         setLoading(true);
@@ -32,6 +34,20 @@ export default function ProductsPage() {
 
     const handleDelete = async (id: number) => { if (!confirm('Remover produto?')) return; await productsApi.delete(String(id)); load(); };
 
+    const handleBulkSave = async () => {
+        try {
+            const items = JSON.parse(bulkText);
+            if (!Array.isArray(items)) throw new Error('O conteúdo deve ser um array JSON');
+            await api.post('/products/bulk', { items });
+            setShowBulkModal(false);
+            setBulkText('');
+            load();
+            alert('Produtos inseridos com sucesso!');
+        } catch (e) {
+            alert('Erro ao processar JSON: ' + (e as Error).message);
+        }
+    };
+
     const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.sku?.toLowerCase().includes(search.toLowerCase()));
 
     return (
@@ -43,6 +59,10 @@ export default function ProductsPage() {
                         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary-600 transition-colors" size={16} />
                         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Pesquisar produtos..." className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 w-64 transition-all shadow-sm" />
                     </div>
+                    <button onClick={() => setShowBulkModal(true)} className="flex items-center gap-2 px-6 py-2.5 bg-white border-2 border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold text-xs uppercase tracking-widest shadow-sm group">
+                        <Database size={18} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                        Inclusão em Massa
+                    </button>
                     <button onClick={openCreate} className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg active:scale-95 transition-all"><Plus size={18} /> Novo Produto</button>
                 </div>
             </div>
@@ -207,6 +227,42 @@ export default function ProductsPage() {
                     </div>
                 </div>
             )}
+
+            {showBulkModal && (
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={() => setShowBulkModal(false)}>
+                    <div className="glass-card w-full max-w-2xl p-8 space-y-6 animate-in zoom-in-95 duration-300 bg-white" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tight">Inclusão em Massa</h3>
+                                <p className="text-xs text-slate-500 font-medium">Cole o JSON contendo o array de produtos.</p>
+                            </div>
+                            <button onClick={() => setShowBulkModal(false)} className="p-2 text-slate-500 hover:text-slate-600 bg-slate-100 rounded-xl"><X size={24} /></button>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Exemplo de Formato:</p>
+                                <pre className="text-[10px] text-slate-600 font-mono">
+                                    {`[\n  { "name": "Produto A", "sku": "SKU-001", "unitPrice": 100, "quantity": 10 },\n  { "name": "Produto B", "sku": "SKU-002", "unitPrice": 250, "quantity": 5 }\n]`}
+                                </pre>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">JSON dos Produtos</label>
+                                <textarea
+                                    value={bulkText}
+                                    onChange={e => setBulkText(e.target.value)}
+                                    placeholder="Paste JSON here..."
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm h-64 font-mono resize-none focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex gap-3 pt-4">
+                            <button onClick={() => setShowBulkModal(false)} className="flex-1 px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl hover:bg-slate-200 transition-all font-bold text-sm">Cancelar</button>
+                            <button onClick={handleBulkSave} className="flex-2 px-10 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all font-bold text-sm shadow-xl shadow-slate-200">Processar Inclusão</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }

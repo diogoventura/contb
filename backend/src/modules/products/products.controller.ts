@@ -30,6 +30,15 @@ router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
     } catch (e) { res.status(500).json({ error: (e as Error).message }); }
 });
 
+router.post('/bulk', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        if (!req.user) { res.status(401).json({ error: 'Unauthorized' }); return; }
+        const { items } = req.body;
+        if (!items || !Array.isArray(items)) { res.status(400).json({ error: 'Formato inválido. Esperado array de itens.' }); return; }
+        res.status(201).json(await productsService.bulkCreate(req.user.userId, items));
+    } catch (e) { res.status(500).json({ error: (e as Error).message }); }
+});
+
 router.put('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const id = parseInt(req.params.id as string);

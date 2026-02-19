@@ -37,6 +37,21 @@ export class ProductsService {
         });
     }
 
+    async bulkCreate(userId: number, items: any[]) {
+        return prisma.product.createMany({
+            data: items.map(item => ({
+                name: item.name,
+                description: item.description || '',
+                sku: item.sku || '',
+                unitPrice: Number(item.unitPrice) || 0,
+                costPrice: Number(item.costPrice) || 0,
+                quantity: Number(item.quantity) || 0,
+                minStock: Number(item.minStock) || 0,
+                userId: userId
+            }))
+        });
+    }
+
     async update(id: number, data: any) {
         const updateData = { ...data };
         // Map frontend names to schema names if they differ

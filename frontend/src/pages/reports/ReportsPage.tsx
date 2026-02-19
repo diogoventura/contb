@@ -8,15 +8,18 @@ import autoTable from 'jspdf-autotable';
 export default function ReportsPage() {
     const [summary, setSummary] = useState<any>(null);
     const [salesData, setSalesData] = useState<any[]>([]);
+    const [insights, setInsights] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         Promise.all([
             reportsApi.getSummary(),
-            reportsApi.getSalesByMonth()
-        ]).then(([summ, sales]) => {
+            reportsApi.getSalesByMonth(),
+            reportsApi.getInsights()
+        ]).then(([summ, sales, insig]) => {
             setSummary(summ.data);
             setSalesData(sales.data);
+            setInsights(insig.data);
         }).catch(console.error).finally(() => setLoading(false));
     }, []);
 
@@ -158,15 +161,15 @@ export default function ReportsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2 group hover:bg-white hover:shadow-sm transition-all">
                         <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Otimização</p>
-                        <p className="text-sm text-slate-600 font-medium">Sua receita cresceu 12% este mês. Considere reabastecer produtos com estoque baixo.</p>
+                        <p className="text-sm text-slate-600 font-medium">{insights?.optimization || 'Calculando sugestões...'}</p>
                     </div>
                     <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2 group hover:bg-white hover:shadow-sm transition-all">
                         <p className="text-[10px] font-black text-primary-600 uppercase tracking-widest">Cobrança</p>
-                        <p className="text-sm text-slate-600 font-medium">Existem R$ {summary?.pendingAmount?.toLocaleString('pt-BR')} pendentes. Ative os avisos em massa para agilizar o recebimento.</p>
+                        <p className="text-sm text-slate-600 font-medium">{insights?.billing || 'Analisando pendências...'}</p>
                     </div>
                     <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2 group hover:bg-white hover:shadow-sm transition-all">
                         <p className="text-[10px] font-black text-purple-600 uppercase tracking-widest">Integridade</p>
-                        <p className="text-sm text-slate-600 font-medium">Todos os boletos gerados nas últimas 24h foram processados com sucesso pelo módulo Itaú.</p>
+                        <p className="text-sm text-slate-600 font-medium">{insights?.integrity || 'Verificando sistema...'}</p>
                     </div>
                 </div>
             </div>

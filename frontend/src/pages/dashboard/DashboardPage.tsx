@@ -17,12 +17,12 @@ export default function DashboardPage() {
     if (!data) return <div className="text-center text-slate-500 py-12">Erro ao carregar dados</div>;
 
     const cards = [
-        { label: 'Receita Mensal', value: `R$ ${Number(data.monthlyRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
-        { label: 'Total em Vendas', value: data.totalSales, icon: ShoppingCart, color: 'text-primary-600', bg: 'bg-primary-50', border: 'border-primary-100' },
-        { label: 'Consórcios Ativos', value: data.activeConsortiums, icon: Handshake, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
-        { label: 'Parcelas Pendentes', value: data.pendingInstallments, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-        { label: 'Parcelas em Atraso', value: data.overdueInstallments, icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
-        { label: 'Produtos em Estoque', value: data.totalProducts, icon: Package, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
+        { label: 'Receita Mensal', value: `R$ ${Number(data.summary?.monthlyRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+        { label: 'Total em Vendas', value: data.summary?.totalSales || 0, icon: ShoppingCart, color: 'text-primary-600', bg: 'bg-primary-50', border: 'border-primary-100' },
+        { label: 'Consórcios Ativos', value: data.summary?.activeConsortiums || 0, icon: Handshake, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+        { label: 'Parcelas Pendentes', value: data.summary?.pendingInstallments || 0, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+        { label: 'Parcelas em Atraso', value: data.summary?.overdueInstallments || 0, icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
+        { label: 'Produtos em Estoque', value: data.summary?.totalProducts || 0, icon: Package, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
     ];
 
     return (

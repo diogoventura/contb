@@ -1,5 +1,8 @@
 import prisma from '../../config/database';
 import { whatsappService } from '../whatsapp/whatsapp.service';
+import { pdfService } from '../pdf/pdf.service';
+// @ts-ignore
+import { MessageMedia } from 'whatsapp-web.js';
 
 export class NotificationWorkerService {
     private async getSetting(key: string, defaultValue: string) {
@@ -8,32 +11,25 @@ export class NotificationWorkerService {
     }
 
     async processInstallmentReminders() {
-        console.log('📨 Processing installment reminders...');
+        console.log('📨 Processing installment reminders (Sync/Due)...');
 
         try {
             const globalBeforeDays = parseInt(await this.getSetting('reminder_days_before', '1'));
-            const globalIntervalAfter = parseInt(await this.getSetting('reminder_interval_after', '3'));
 
-            // Fetch all pending installments with sale and consortium context
-            const installments = await (prisma.installment.findMany as any)({
-                where: { status: 'pending' },
+            // Fetch pending installments that are NOT overdue yet
+            const installments = await prisma.installment.findMany({
+                where: { status: 'pending', dueDate: { gte: new Date() } },
                 include: {
-                    sale: {
-                        include: { consortium: true }
-                    }
+                    sale: { include: { consortium: true } }
                 }
             });
 
-            console.log(`  🔍 Checking ${installments.length} pending installments...`);
+            console.log(`  🔍 Checking ${installments.length} pending non-overdue installments...`);
 
             for (const inst of installments) {
                 if (!inst.sale.personPhone) continue;
-
-                // Priority: Sale > Consortium > Global
                 const beforeDays = inst.sale.reminderDaysBefore ?? inst.sale.consortium?.reminderDaysBefore ?? globalBeforeDays;
-                const intervalAfter = inst.sale.reminderIntervalAfter ?? inst.sale.consortium?.reminderIntervalAfter ?? globalIntervalAfter;
-
-                await this.handleInstallmentReminders(inst, beforeDays, intervalAfter);
+                await this.handleInstallmentReminders(inst, beforeDays);
             }
 
         } catch (error) {
@@ -41,7 +37,49 @@ export class NotificationWorkerService {
         }
     }
 
-    private async handleInstallmentReminders(inst: any, beforeDays: number, intervalAfter: number) {
+    async processOverdueReminders() {
+        console.log('📨 Processing OVERDUE reminders (Configurable Job)...');
+
+        try {
+            // Fetch all overdue installments
+            const installments = await prisma.installment.findMany({
+                where: { status: 'pending', dueDate: { lt: new Date() } },
+                include: {
+                    sale: { include: { consortium: true } }
+                }
+            });
+
+            console.log(`  🔍 Sending reminders for ${installments.length} overdue installments...`);
+
+            for (const inst of installments) {
+                if (!inst.sale.personPhone) continue;
+
+                const now = new Date();
+                const dueDate = new Date(inst.dueDate);
+                const diffTime = now.getTime() - dueDate.getTime();
+                const daysOverdue = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                const pdfBuffer = await pdfService.generateBoletoPDF(inst.id);
+                const media = new MessageMedia(
+                    'application/pdf',
+                    pdfBuffer.toString('base64'),
+                    `boleto-atrasado-p${inst.number}.pdf`
+                );
+
+                await this.sendSpecificReminder(
+                    inst,
+                    `Olá ${inst.sale.personName}, gostaria de lembrar que temos pendência de pagamento:\n\n• Boleto #${inst.saleId} parcela ${inst.number} - R$${Number(inst.amount).toFixed(2)}\n\n(Atrasado há ${daysOverdue} dias)\n\nSegue o boleto em anexo.\nObrigado! 🙏`,
+                    { notifLateDays: { increment: 1 }, lastLateNotifAt: new Date() },
+                    `Lembrete atraso (${daysOverdue}d)`,
+                    media
+                );
+            }
+        } catch (error) {
+            console.error('❌ Error processing overdue reminders:', error);
+        }
+    }
+
+    private async handleInstallmentReminders(inst: any, beforeDays: number) {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
 
@@ -60,34 +98,15 @@ export class NotificationWorkerService {
         else if (diffDays === 0 && !inst.notifDueDaySent) {
             await this.sendSpecificReminder(inst, `⚠️ *Pagamento Hoje*\n\nOlá ${inst.sale.personName},\n\nSua parcela nº ${inst.number} no valor de R$${Number(inst.amount).toFixed(2)} vence *hoje* (${inst.dueDate.toLocaleDateString('pt-BR')}).\n\nPor favor, efetue o pagamento o mais breve possível.\n\nObrigado! 🙏`, { notifDueDaySent: true }, `Lembrete dia do vencimento`);
         }
-
-        // 3. Overdue Reminders (repeated every intervalAfter days)
-        else if (diffDays < 0) {
-            const daysOverdue = Math.abs(diffDays);
-            let shouldSend = false;
-
-            if (!inst.lastLateNotifAt) {
-                shouldSend = true; // First late reminder
-            } else {
-                const lastNotif = new Date(inst.lastLateNotifAt);
-                lastNotif.setHours(0, 0, 0, 0);
-                const nextDueNotif = new Date(lastNotif);
-                nextDueNotif.setDate(nextDueNotif.getDate() + intervalAfter);
-
-                if (now.getTime() >= nextDueNotif.getTime()) {
-                    shouldSend = true;
-                }
-            }
-
-            if (shouldSend) {
-                await this.sendSpecificReminder(inst, `🔴 *Parcela em Atraso*\n\nOlá ${inst.sale.personName},\n\nSua parcela nº ${inst.number} no valor de R$${Number(inst.amount).toFixed(2)} está *${daysOverdue} dias em atraso* (venceu em ${inst.dueDate.toLocaleDateString('pt-BR')}).\n\nPor favor, regularize seu pagamento o mais breve possível.\n\nEm caso de dúvidas, entre em contato conosco.\n\nObrigado! 🙏`, { notifLateDays: { increment: 1 }, lastLateNotifAt: new Date() }, `Lembrete atraso (${daysOverdue}d)`);
-            }
-        }
     }
 
-    private async sendSpecificReminder(inst: any, message: string, updateData: any, logPrefix: string) {
+    private async sendSpecificReminder(inst: any, message: string, updateData: any, logPrefix: string, media?: MessageMedia) {
         try {
-            await whatsappService.sendMessage(inst.sale.personPhone, message);
+            if (media) {
+                await whatsappService.sendMediaMessage(inst.sale.personPhone, media, message);
+            } else {
+                await whatsappService.sendMessage(inst.sale.personPhone, message);
+            }
             await prisma.installment.update({ where: { id: inst.id }, data: updateData });
             await this.createNotification(`${logPrefix} enviado para ${inst.sale.personName} - Parcela ${inst.number}`);
             console.log(`  ✅ ${logPrefix} sent: ${inst.sale.personName} parcela ${inst.number}`);

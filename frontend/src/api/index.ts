@@ -86,6 +86,7 @@ export const whatsappApi = {
 export const reportsApi = {
     getSummary: () => api.get('/reports/summary'),
     getSalesByMonth: () => api.get('/reports/sales-by-month'),
+    getInsights: () => api.get('/reports/insights'),
 };
 
 export const settingsApi = {
