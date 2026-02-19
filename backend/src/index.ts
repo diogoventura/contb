@@ -71,7 +71,7 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 const PORT = config.app.port;
 
 // Debug Environment
-console.log('🚀 [DEPLOY_MARKER] VERSION: 2026-02-19-V3-SQLITE-PERSISTENCE-FIX');
+console.log('🚀 [DEPLOY_MARKER] VERSION: 2026-02-19-V4-FINAL-CONTROLS');
 console.log('🌐 [ENV_DEBUG] Starting server diagnostics...');
 console.log(`🌐 [ENV_DEBUG] CWD: ${process.cwd()}`);
 
