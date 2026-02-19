@@ -74,4 +74,11 @@ router.delete('/participants/:participantId', async (req: AuthRequest, res: Resp
     } catch (e) { res.status(500).json({ error: (e as Error).message }); }
 });
 
+router.get('/participants/:participantId/details', async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const participantId = parseInt(req.params.participantId as string);
+        res.json(await consortiumsService.getParticipantDetails(participantId));
+    } catch (e) { res.status(500).json({ error: (e as Error).message }); }
+});
+
 export default router;

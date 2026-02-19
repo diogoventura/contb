@@ -50,6 +50,7 @@ export const consortiumsApi = {
     addParticipant: (id: string, data: any) => api.post(`/consortiums/${id}/participants`, data),
     updateParticipant: (id: string, data: any) => api.put(`/consortiums/participants/${id}`, data),
     removeParticipant: (id: string) => api.delete(`/consortiums/participants/${id}`),
+    getParticipantDetails: (participantId: string) => api.get(`/consortiums/participants/${participantId}/details`),
 };
 
 export const salesApi = {

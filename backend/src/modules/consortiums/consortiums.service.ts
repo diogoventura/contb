@@ -110,6 +110,55 @@ export class ConsortiumsService {
             orderBy: { slotNumber: 'asc' }
         });
     }
+
+    async getParticipantDetails(participantId: number) {
+        const participant = await prisma.consortiumParticipant.findUnique({
+            where: { id: participantId },
+            include: { consortium: true }
+        });
+
+        if (!participant) throw new Error('Participante não encontrado');
+
+        // Find sales linked by phone or email
+        const orConditions: any[] = [];
+        if (participant.phone) orConditions.push({ personPhone: participant.phone });
+        if (participant.email) orConditions.push({ personEmail: participant.email });
+
+        let sales: any[] = [];
+        if (orConditions.length > 0) {
+            sales = await prisma.sale.findMany({
+                where: { OR: orConditions },
+                orderBy: { soldAt: 'desc' },
+                include: {
+                    saleItems: { include: { product: { select: { name: true } } } },
+                    installments: { orderBy: { number: 'asc' } }
+                }
+            });
+        }
+
+        // Compute financial summary
+        let totalPurchased = 0;
+        let totalPaid = 0;
+        let totalPending = 0;
+
+        for (const sale of sales) {
+            totalPurchased += Number(sale.totalAmount);
+            for (const inst of sale.installments) {
+                if (inst.status === 'paid') {
+                    totalPaid += Number(inst.amount);
+                } else {
+                    totalPending += Number(inst.amount);
+                }
+            }
+        }
+
+        return {
+            participant,
+            consortium: participant.consortium,
+            sales,
+            summary: { totalPurchased, totalPaid, totalPending }
+        };
+    }
 }
 
 export const consortiumsService = new ConsortiumsService();
