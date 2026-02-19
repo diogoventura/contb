@@ -71,33 +71,19 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 const PORT = config.app.port;
 
 // Debug Environment
-console.log('🚀 [DEPLOY_MARKER] VERSION: 2026-02-18-V2-PWD-TOGGLE');
+console.log('🚀 [DEPLOY_MARKER] VERSION: 2026-02-19-V3-SQLITE-PERSISTENCE-FIX');
 console.log('🌐 [ENV_DEBUG] Starting server diagnostics...');
 console.log(`🌐 [ENV_DEBUG] CWD: ${process.cwd()}`);
 
-let dbUrl = process.env.DATABASE_URL || 'file:./prisma/dev.db';
+let dbUrl = config.database.url;
 // Fix for common Railway SQLite absolute path issues
-if (dbUrl === 'file:/app/data/contb.db' || dbUrl.includes('/app/data')) {
-    console.log('🌐 [ENV_DEBUG] Detected absolute /app/data path. Ensuring directory exists...');
+if (dbUrl.includes('/app/data')) {
+    console.log('🌐 [ENV_DEBUG] Detected absolute /app/data path. Tracking persistence...');
 }
 console.log(`🌐 [ENV_DEBUG] Resolved DATABASE_URL: ${dbUrl}`);
 
 // Safely log environment keys
 console.log(`🌐 [ENV_DEBUG] Env Keys: ${Object.keys(process.env).filter(k => !k.toLowerCase().includes('hash') && !k.toLowerCase().includes('secret') && !k.toLowerCase().includes('password')).join(', ')}`);
-
-// Inspect common paths
-['/app', '/app/data'].forEach(dir => {
-    try {
-        if (fs.existsSync(dir)) {
-            const files = fs.readdirSync(dir);
-            console.log(`📂 [ENV_DEBUG] Directory ${dir} exists. Contents: ${files.join(', ') || '(empty)'}`);
-        } else {
-            console.log(`📂 [ENV_DEBUG] Directory ${dir} does not exist.`);
-        }
-    } catch (e) {
-        console.error(`❌ [ENV_DEBUG] Error reading ${dir}:`, e);
-    }
-});
 
 // Ensure data directory exists if using /app/data or /data
 ['/app/data', '/data'].forEach(dataDir => {
@@ -118,6 +104,15 @@ console.log(`🌐 [ENV_DEBUG] Env Keys: ${Object.keys(process.env).filter(k => !
             } catch (e) {
                 console.error(`❌ [ENV_DEBUG] Directory is NOT writable: ${dataDir}`, e);
             }
+        }
+
+        // Check if DB file exists
+        const dbFilePath = dbUrl.replace('file:', '');
+        if (fs.existsSync(dbFilePath)) {
+            const stats = fs.statSync(dbFilePath);
+            console.log(`📝 [DB_DEBUG] Database file EXISTS: ${dbFilePath} (${stats.size} bytes, modified: ${stats.mtime.toISOString()})`);
+        } else {
+            console.log(`📝 [DB_DEBUG] Database file DOES NOT EXIST: ${dbFilePath} (Will be created)`);
         }
     }
 });

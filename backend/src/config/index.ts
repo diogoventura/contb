@@ -9,7 +9,7 @@ export const config = {
         nodeEnv: process.env.NODE_ENV || 'development',
     },
     database: {
-        url: process.env.DATABASE_URL || 'file:./prisma/dev.db',
+        url: process.env.DATABASE_URL || (process.env.NODE_ENV === 'production' ? 'file:/app/data/contb.db' : 'file:./prisma/dev.db'),
     },
     jwt: {
         expiresIn: '24h',
