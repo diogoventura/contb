@@ -84,34 +84,44 @@ export class SalesService {
     }
 
     async create(userId: number, data: { personName: string; personPhone?: string; personEmail?: string; personDocument?: string; totalAmount: number; soldAt?: string; items: any[]; installmentCount?: number; notes?: string; consortiumId?: number; reminderDaysBefore?: number; reminderIntervalAfter?: number }) {
+        if (!data.items || data.items.length === 0) throw new Error('Adicione pelo menos um item na venda');
+        if (!data.personName?.trim()) throw new Error('Informe o nome do cliente');
+        for (const item of data.items) {
+            if (!item.productId || Number(item.productId) === 0) throw new Error('Todos os itens precisam ter um produto selecionado');
+            if (!item.quantity || Number(item.quantity) <= 0) throw new Error('A quantidade de cada item deve ser maior que zero');
+        }
         const { items, installmentCount = 1, ...saleData } = data;
         const soldAt = saleData.soldAt ? new Date(saleData.soldAt) : new Date();
 
         return prisma.$transaction(async (tx) => {
-            const sale = await (tx.sale.create as any)({
-                data: {
-                    personName: saleData.personName,
-                    personPhone: saleData.personPhone,
-                    personEmail: saleData.personEmail,
-                    personDocument: saleData.personDocument,
-                    totalAmount: Number(saleData.totalAmount),
-                    installmentCount: Number(installmentCount),
-                    notes: saleData.notes,
-                    soldAt,
-                    consortiumId: saleData.consortiumId ? Number(saleData.consortiumId) : null,
-                    reminderDaysBefore: saleData.reminderDaysBefore ? Number(saleData.reminderDaysBefore) : null,
-                    reminderIntervalAfter: saleData.reminderIntervalAfter ? Number(saleData.reminderIntervalAfter) : null,
-                    user: { connect: { id: userId } },
-                    saleItems: {
-                        create: items.map((i: any) => ({
-                            productId: Number(i.productId),
-                            quantity: Number(i.quantity),
-                            unitPrice: Number(i.unitPrice),
-                            subtotal: Number(i.unitPrice) * Number(i.quantity)
-                        }))
-                    }
+            const createData: any = {
+                personName: saleData.personName,
+                personPhone: saleData.personPhone || null,
+                personEmail: saleData.personEmail || null,
+                personDocument: saleData.personDocument || null,
+                totalAmount: Number(saleData.totalAmount),
+                installmentCount: Number(installmentCount),
+                notes: saleData.notes || null,
+                soldAt,
+                reminderDaysBefore: saleData.reminderDaysBefore ? Number(saleData.reminderDaysBefore) : null,
+                reminderIntervalAfter: saleData.reminderIntervalAfter ? Number(saleData.reminderIntervalAfter) : null,
+                user: { connect: { id: userId } },
+                saleItems: {
+                    create: items.map((i: any) => ({
+                        productId: Number(i.productId),
+                        quantity: Number(i.quantity),
+                        unitPrice: Number(i.unitPrice),
+                        subtotal: Number(i.unitPrice) * Number(i.quantity)
+                    }))
                 }
-            });
+            };
+
+            // Usa sintaxe de relação para não passar consortiumId direto no create
+            if (saleData.consortiumId) {
+                createData.consortium = { connect: { id: Number(saleData.consortiumId) } };
+            }
+
+            const sale = await tx.sale.create({ data: createData });
 
             // Generate installments
             const amountPerInstallment = Number(sale.totalAmount) / Number(installmentCount);

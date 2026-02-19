@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, ShoppingCart, Calendar, ChevronDown, ChevronUp, FileText, CheckCircle2, Clock, Trash2, X, AlertCircle, Eye, User, Phone, Mail, Package, Bell, Handshake } from 'lucide-react';
-import { salesApi, productsApi, consortiumsApi } from '../../api';
+import { Plus, ShoppingCart, Calendar, ChevronDown, ChevronUp, FileText, CheckCircle2, Clock, Trash2, X, AlertCircle, Eye, User, Phone, Mail, Package, Bell } from 'lucide-react';
+import { salesApi, productsApi } from '../../api';
 
 export default function SalesPage() {
     const [sales, setSales] = useState<any[]>([]);
@@ -12,12 +12,12 @@ export default function SalesPage() {
     const [error, setError] = useState<string | null>(null);
     const [selectedInstallments, setSelectedInstallments] = useState<number[]>([]);
     const [sendingBulk, setSendingBulk] = useState(false);
-    const [consortiums, setConsortiums] = useState<any[]>([]);
+
 
     const [form, setForm] = useState({
         personName: '', personPhone: '', personEmail: '', personDocument: '',
         totalAmount: 0, installmentCount: 1, notes: '', items: [] as any[],
-        consortiumId: '', reminderDaysBefore: '', reminderIntervalAfter: ''
+        reminderDaysBefore: '', reminderIntervalAfter: ''
     });
 
     const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -25,14 +25,12 @@ export default function SalesPage() {
     const load = async () => {
         setLoading(true);
         try {
-            const [sRes, pRes, cRes] = await Promise.all([
+            const [sRes, pRes] = await Promise.all([
                 salesApi.getAll(1, 100),
-                productsApi.getAll(1, 100),
-                consortiumsApi.getAll(1, 100)
+                productsApi.getAll(1, 100)
             ]);
             setSales(sRes.data.sales);
             setProducts(pRes.data.products);
-            setConsortiums(cRes.data.consortiums);
         } catch (err) { console.error(err); }
         finally { setLoading(false); }
     };
@@ -55,9 +53,10 @@ export default function SalesPage() {
         try {
             setError(null);
             if (form.items.length === 0) throw new Error('Adicione pelo menos um item');
+            if (form.items.some((i: any) => !i.productId)) throw new Error('Selecione o produto em todos os itens');
+            if (!form.personName.trim()) throw new Error('Informe o nome do cliente');
             const data = {
                 ...form,
-                consortiumId: form.consortiumId ? parseInt(form.consortiumId) : undefined,
                 reminderDaysBefore: form.reminderDaysBefore ? parseInt(form.reminderDaysBefore) : undefined,
                 reminderIntervalAfter: form.reminderIntervalAfter ? parseInt(form.reminderIntervalAfter) : undefined,
             };
@@ -65,7 +64,7 @@ export default function SalesPage() {
             setShowModal(false);
             load();
         } catch (err: any) {
-            setError(err.response?.data?.message || err.message || 'Erro ao salvar venda');
+            setError(err.response?.data?.error || err.response?.data?.message || err.message || 'Erro ao salvar venda');
         }
     };
 
@@ -151,7 +150,7 @@ export default function SalesPage() {
                             Notificar {selectedInstallments.length} {selectedInstallments.length === 1 ? 'pendência' : 'pendências'}
                         </button>
                     )}
-                    <button onClick={() => { setForm({ personName: '', personPhone: '', personEmail: '', personDocument: '', totalAmount: 0, installmentCount: 1, notes: '', items: [], consortiumId: '', reminderDaysBefore: '', reminderIntervalAfter: '' }); setError(null); setShowModal(true); }}
+                    <button onClick={() => { setForm({ personName: '', personPhone: '', personEmail: '', personDocument: '', totalAmount: 0, installmentCount: 1, notes: '', items: [], reminderDaysBefore: '', reminderIntervalAfter: '' }); setError(null); setShowModal(true); }}
                         className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-primary-500 transition-all shadow-lg shadow-primary-600/20 active:scale-95">
                         <Plus size={18} /> Nova Venda
                     </button>
@@ -323,15 +322,6 @@ export default function SalesPage() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50 rounded-3xl border border-slate-100 shadow-inner">
-                            <div className="space-y-2 md:col-span-2">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                    <Handshake size={14} className="text-primary-600" /> Vincular a Consórcio (Opcional)
-                                </label>
-                                <select value={form.consortiumId} onChange={e => setForm({ ...form, consortiumId: e.target.value })} className="w-full px-5 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-primary-100/50 transition-all text-sm shadow-sm">
-                                    <option value="">Nenhum consórcio vinculado</option>
-                                    {consortiums.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                </select>
-                            </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Número de Parcelas</label>
                                 <input type="number" min="1" max="120" value={form.installmentCount} onChange={e => setForm({ ...form, installmentCount: parseInt(e.target.value) })} className="w-full px-5 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 font-bold focus:outline-none focus:ring-4 focus:ring-primary-100/50 transition-all text-sm shadow-sm" />
