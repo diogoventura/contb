@@ -119,10 +119,26 @@ export class ConsortiumsService {
 
         if (!participant) throw new Error('Participante não encontrado');
 
-        // Find sales linked by phone or email
+        // Find sales linked by phone, email, or (Name + Consortium)
         const orConditions: any[] = [];
-        if (participant.phone) orConditions.push({ personPhone: participant.phone });
-        if (participant.email) orConditions.push({ personEmail: participant.email });
+        if (participant.phone) {
+            const digits = participant.phone.replace(/\D/g, '');
+            orConditions.push({ personPhone: participant.phone });
+            if (digits && digits.length >= 8) {
+                orConditions.push({ personPhone: { contains: digits.slice(-9) } });
+            }
+        }
+        if (participant.email && participant.email !== 'null') {
+            orConditions.push({ personEmail: participant.email });
+        }
+
+        // Fallback: Name + Consortium match
+        orConditions.push({
+            AND: [
+                { personName: participant.name },
+                { consortiumId: participant.consortiumId }
+            ]
+        });
 
         let sales: any[] = [];
         if (orConditions.length > 0) {

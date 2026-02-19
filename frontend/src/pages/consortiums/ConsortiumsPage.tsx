@@ -551,109 +551,114 @@ export default function ConsortiumsPage() {
 
                                 {/* Tab Content */}
                                 <div className="flex-1 overflow-y-auto px-8 py-6">
-
-                                    {/* Timeline Tab */}
                                     {activeTab === 'timeline' && (() => {
                                         const events = buildTimeline(participantDetails.sales);
-                                        return events.length === 0 ? (
-                                            <div className="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                                <History size={40} className="mx-auto text-slate-200 mb-3" />
-                                                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Nenhum evento registrado</p>
+                                        return events.length > 0 ? (
+                                            <div className="space-y-4 pr-2 pb-4">
+                                                {events.map((ev, i) => (
+                                                    <div key={i} className="relative">
+                                                        <div className="absolute -left-[2.15rem] top-1.5 w-4 h-4 rounded-full border-2 border-white bg-slate-200" />
+                                                        <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:shadow-md transition-all">
+                                                            <div className="flex justify-between items-start mb-1">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className={`p-1.5 rounded-lg ${ev.color.replace('bg-', 'bg-opacity-10 ')} ${ev.color.replace('bg-', 'text-')}`}>
+                                                                        <ev.icon size={14} />
+                                                                    </div>
+                                                                    <p className="text-sm font-bold text-slate-800">{ev.label}</p>
+                                                                </div>
+                                                                <span className="text-[10px] font-black text-slate-400 uppercase bg-slate-50 px-2 py-0.5 rounded-full">{ev.date.toLocaleDateString('pt-BR')}</span>
+                                                            </div>
+                                                            <p className="text-xs text-slate-500 font-medium ml-8">{ev.sub}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         ) : (
-                                            <div className="relative">
-                                                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-100" />
-                                                <div className="space-y-4 pl-10">
-                                                    {events.map((ev, i) => (
-                                                        <div key={i} className="relative">
-                                                            <div className={`absolute -left-[2.35rem] top-1 w-5 h-5 rounded-full ${ev.color} flex items-center justify-center shadow-sm`}>
-                                                                <ev.icon size={10} className="text-white" />
-                                                            </div>
-                                                            <div className="bg-white rounded-2xl border border-slate-100 px-5 py-4 shadow-sm hover:shadow-md transition-all">
-                                                                <div className="flex justify-between items-center">
-                                                                    <p className="text-sm font-bold text-slate-800">{ev.label}</p>
-                                                                    <p className="text-[10px] font-black text-slate-400 uppercase">{ev.date.toLocaleDateString('pt-BR')}</p>
-                                                                </div>
-                                                                <p className="text-xs text-slate-500 font-medium mt-0.5">{ev.sub}</p>
-                                                            </div>
-                                                        </div>
-                                                    ))}
+                                            <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                                                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm mb-4">
+                                                    <History size={24} className="text-slate-300" />
                                                 </div>
+                                                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Nenhum evento registrado</p>
+                                                <p className="text-xs text-slate-400 mt-2 text-center max-w-[250px]">
+                                                    Vendas são vinculadas por nome ou telefone. Verifique se o nome do cliente na venda é idêntico.
+                                                </p>
                                             </div>
                                         );
                                     })()}
 
-                                    {/* Purchases Tab */}
                                     {activeTab === 'purchases' && (
-                                        participantDetails.sales.length === 0 ? (
-                                            <div className="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                                <ShoppingBag size={40} className="mx-auto text-slate-200 mb-3" />
-                                                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Nenhuma compra encontrada</p>
-                                                <p className="text-slate-300 text-xs mt-1">Vincule compras usando o mesmo telefone ou email do participante</p>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-4">
+                                        participantDetails.sales.length > 0 ? (
+                                            <div className="space-y-4 pr-2 pb-4">
                                                 {participantDetails.sales.map((sale: any) => (
-                                                    <div key={sale.id} className="bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden hover:border-primary-100 transition-all">
-                                                        <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100">
-                                                            <div>
-                                                                <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Venda #{sale.id} · {new Date(sale.soldAt).toLocaleDateString('pt-BR')}</p>
-                                                                <p className="text-lg font-black text-slate-900 mt-0.5">R$ {fmt(Number(sale.totalAmount))}</p>
+                                                    <div key={sale.id} className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:shadow-md transition-all">
+                                                        <div className="flex justify-between items-center mb-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center">
+                                                                    <ShoppingBag size={14} className="text-primary-600" />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-sm font-bold text-slate-800">Venda #{sale.id}</p>
+                                                                    <p className="text-[10px] text-slate-400 font-bold uppercase">{new Date(sale.soldAt).toLocaleDateString('pt-BR')}</p>
+                                                                </div>
                                                             </div>
-                                                            <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${sale.status === 'active' ? 'bg-primary-50 text-primary-600 border-primary-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
-                                                                {sale.status === 'active' ? 'Em Aberto' : 'Finalizada'}
-                                                            </span>
+                                                            <p className="text-sm font-black text-slate-900">R$ {fmt(Number(sale.totalAmount))}</p>
                                                         </div>
-                                                        {sale.saleItems.length > 0 && (
-                                                            <div className="px-5 py-3 space-y-2">
-                                                                {sale.saleItems.map((item: any) => (
-                                                                    <div key={item.id} className="flex items-center justify-between">
-                                                                        <div className="flex items-center gap-2">
-                                                                            <Package size={12} className="text-slate-400" />
-                                                                            <span className="text-xs font-semibold text-slate-700">{item.product?.name || 'Produto'}</span>
-                                                                            <span className="text-[10px] text-slate-400">×{item.quantity}</span>
-                                                                        </div>
-                                                                        <span className="text-xs font-bold text-slate-600">R$ {fmt(Number(item.subtotal))}</span>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
+                                                        <div className="space-y-2 pl-10 border-l border-slate-50">
+                                                            {sale.saleItems.map((item: any, idx: number) => (
+                                                                <div key={idx} className="flex justify-between items-center text-xs">
+                                                                    <span className="text-slate-500 font-medium">{item.quantity}x {item.product.name}</span>
+                                                                    <span className="text-slate-400 font-bold">R$ {fmt(Number(item.subtotal))}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 ))}
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                                                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm mb-4">
+                                                    <ShoppingBag size={24} className="text-slate-300" />
+                                                </div>
+                                                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Nenhuma compra encontrada</p>
                                             </div>
                                         )
                                     )}
 
-                                    {/* Installments Tab */}
                                     {activeTab === 'installments' && (() => {
-                                        const allInstallments = participantDetails.sales.flatMap((s: any) =>
-                                            s.installments.map((i: any) => ({ ...i, saleId: s.id }))
-                                        ).sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+                                        const allInsts = participantDetails.sales
+                                            .flatMap((s: any) => s.installments.map((i: any) => ({ ...i, saleId: s.id })))
+                                            .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 
-                                        return allInstallments.length === 0 ? (
-                                            <div className="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                                <CreditCard size={40} className="mx-auto text-slate-200 mb-3" />
-                                                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Nenhuma parcela encontrada</p>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-2">
-                                                {allInstallments.map((inst: any) => (
-                                                    <div key={inst.id} className="flex items-center justify-between bg-white rounded-xl px-4 py-3.5 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                                        return allInsts.length > 0 ? (
+                                            <div className="space-y-3 pr-2 pb-4">
+                                                {allInsts.map((inst: any) => (
+                                                    <div key={inst.id} className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm flex items-center justify-between hover:shadow-md transition-all">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500">{inst.number}x</div>
+                                                            <div className={`w-9 h-9 rounded-xl ${instStatusColor(inst.status).replace('bg-emerald-500', 'bg-emerald-600').replace('bg-amber-500', 'bg-amber-600').replace('bg-rose-500', 'bg-rose-600')} flex items-center justify-center text-white shadow-sm`}>
+                                                                <CreditCard size={18} />
+                                                            </div>
                                                             <div>
-                                                                <p className="text-sm font-bold text-slate-800">R$ {fmt(Number(inst.amount))}</p>
-                                                                <p className="text-[10px] font-bold text-slate-400 uppercase">Vecto: {new Date(inst.dueDate).toLocaleDateString('pt-BR')} · Venda #{inst.saleId}</p>
+                                                                <p className="text-sm font-bold text-slate-800">Parcela {inst.number}</p>
+                                                                <p className="text-[10px] text-slate-400 font-bold uppercase">Vencimento: {new Date(inst.dueDate).toLocaleDateString('pt-BR')} · #{inst.saleId}</p>
                                                             </div>
                                                         </div>
-                                                        <div className="flex items-center gap-3">
-                                                            {inst.paidAt && <p className="text-[9px] font-bold text-slate-400 uppercase hidden sm:block">Pago em {new Date(inst.paidAt).toLocaleDateString('pt-BR')}</p>}
-                                                            <span className={`px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${instStatusColor(inst.status)}`}>
+                                                        <div className="text-right">
+                                                            <p className="text-sm font-black text-slate-900 mb-1">R$ {fmt(Number(inst.amount))}</p>
+                                                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter ${inst.status === 'paid' ? 'bg-emerald-50 text-emerald-600' :
+                                                                    inst.status === 'overdue' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
+                                                                }`}>
                                                                 {inst.status === 'paid' ? 'Pago' : inst.status === 'overdue' ? 'Atrasado' : 'Pendente'}
                                                             </span>
                                                         </div>
                                                     </div>
                                                 ))}
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                                                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm mb-4">
+                                                    <CreditCard size={24} className="text-slate-300" />
+                                                </div>
+                                                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Nenhuma parcela encontrada</p>
                                             </div>
                                         );
                                     })()}
