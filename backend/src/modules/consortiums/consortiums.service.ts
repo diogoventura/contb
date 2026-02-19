@@ -132,13 +132,12 @@ export class ConsortiumsService {
             orConditions.push({ personEmail: participant.email });
         }
 
-        // Fallback: Name + Consortium match
-        orConditions.push({
-            AND: [
-                { personName: participant.name },
-                { consortiumId: participant.consortiumId }
-            ]
-        });
+        // Fallback: Name match (even if no consortiumId is set on sale)
+        orConditions.push({ personName: participant.name });
+
+        // Backup fallback: matching by email/phone exact if it was null before
+        if (participant.phone) orConditions.push({ personPhone: participant.phone });
+        if (participant.email) orConditions.push({ personEmail: participant.email });
 
         let sales: any[] = [];
         if (orConditions.length > 0) {

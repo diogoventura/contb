@@ -14,6 +14,7 @@ export default function ConsortiumsPage() {
     const [participants, setParticipants] = useState<any[]>([]);
     const [showParticipantModal, setShowParticipantModal] = useState(false);
     const [participantForm, setParticipantForm] = useState({ name: '', phone: '', email: '', document: '' });
+    const [editingParticipant, setEditingParticipant] = useState<any>(null);
     const [activeConsortiumId, setActiveConsortiumId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -83,7 +84,21 @@ export default function ConsortiumsPage() {
             return;
         }
         setActiveConsortiumId(consortium.id);
+        setEditingParticipant(null);
         setParticipantForm({ name: '', phone: '', email: '', document: '' });
+        setError(null);
+        setShowParticipantModal(true);
+    };
+
+    const openEditParticipant = (p: any) => {
+        setEditingParticipant(p);
+        setActiveConsortiumId(p.consortiumId);
+        setParticipantForm({
+            name: p.name,
+            phone: p.phone || '',
+            email: p.email || '',
+            document: p.document || ''
+        });
         setError(null);
         setShowParticipantModal(true);
     };
@@ -92,13 +107,17 @@ export default function ConsortiumsPage() {
         if (!activeConsortiumId) return;
         try {
             setError(null);
-            await consortiumsApi.addParticipant(String(activeConsortiumId), participantForm);
+            if (editingParticipant) {
+                await consortiumsApi.updateParticipant(editingParticipant.id, participantForm);
+            } else {
+                await consortiumsApi.addParticipant(String(activeConsortiumId), participantForm);
+            }
             setShowParticipantModal(false);
             const r = await consortiumsApi.getParticipants(String(activeConsortiumId));
             setParticipants(r.data);
             load();
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Erro ao adicionar participante');
+            setError(err.response?.data?.message || 'Erro ao salvar participante');
         }
     };
 
@@ -265,6 +284,9 @@ export default function ConsortiumsPage() {
                                                                 <div className="flex items-center gap-2 md:opacity-0 group-hover/p:opacity-100 transition-opacity">
                                                                     <button onClick={() => openParticipantDetails(p)} className="p-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all" title="Ver Detalhes">
                                                                         <History size={18} />
+                                                                    </button>
+                                                                    <button onClick={() => openEditParticipant(p)} className="p-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all" title="Editar Participante">
+                                                                        <Edit2 size={18} />
                                                                     </button>
                                                                     <button onClick={() => handleStatusParticipant(p, p.status === 'paid' ? 'active' : 'paid')} className={`p-2 rounded-xl transition-all ${p.status === 'paid' ? 'text-amber-500 hover:bg-amber-50 rounded-xl' : 'text-emerald-500 hover:bg-emerald-50 rounded-xl'}`} title={p.status === 'paid' ? 'Reverter para Pendente' : 'Marcar como Pago'}>
                                                                         {p.status === 'paid' ? <Clock size={18} /> : <CheckCircle2 size={18} />}
@@ -436,7 +458,7 @@ export default function ConsortiumsPage() {
             {showParticipantModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-in fade-in duration-300" onClick={() => setShowParticipantModal(false)}>
                     <div className="glass-card w-full max-w-md p-8 space-y-6 animate-in zoom-in-95 duration-300 bg-white" onClick={e => e.stopPropagation()}>
-                        <div className="flex justify-between items-center"><h3 className="text-2xl font-black text-slate-900 tracking-tight">Novo Participante</h3><button onClick={() => setShowParticipantModal(false)} className="p-2 text-slate-500 hover:text-slate-600 bg-slate-100 rounded-xl"><X size={24} /></button></div>
+                        <div className="flex justify-between items-center"><h3 className="text-2xl font-black text-slate-900 tracking-tight">{editingParticipant ? 'Editar' : 'Novo'} Participante</h3><button onClick={() => setShowParticipantModal(false)} className="p-2 text-slate-500 hover:text-slate-600 bg-slate-100 rounded-xl"><X size={24} /></button></div>
                         {error && (
                             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold flex items-center gap-2 animate-pulse">
                                 <AlertCircle size={16} /> {error}
@@ -645,7 +667,7 @@ export default function ConsortiumsPage() {
                                                         <div className="text-right">
                                                             <p className="text-sm font-black text-slate-900 mb-1">R$ {fmt(Number(inst.amount))}</p>
                                                             <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter ${inst.status === 'paid' ? 'bg-emerald-50 text-emerald-600' :
-                                                                    inst.status === 'overdue' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
+                                                                inst.status === 'overdue' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
                                                                 }`}>
                                                                 {inst.status === 'paid' ? 'Pago' : inst.status === 'overdue' ? 'Atrasado' : 'Pendente'}
                                                             </span>

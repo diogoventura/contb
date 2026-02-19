@@ -9,7 +9,7 @@ export default function ProductsPage() {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [editing, setEditing] = useState<any>(null);
-    const [form, setForm] = useState({ name: '', description: '', unitPrice: '', costPrice: '', quantity: '', minStock: '' });
+    const [form, setForm] = useState({ name: '', description: '', sku: '', unitPrice: '', costPrice: '', quantity: '', minStock: '' });
     const [search, setSearch] = useState('');
 
     const load = () => {
@@ -19,8 +19,8 @@ export default function ProductsPage() {
 
     useEffect(() => { load(); }, []);
 
-    const openCreate = () => { setEditing(null); setForm({ name: '', description: '', unitPrice: '', costPrice: '', quantity: '', minStock: '' }); setShowModal(true); };
-    const openEdit = (p: any) => { setEditing(p); setForm({ name: p.name, description: p.description || '', unitPrice: String(p.unitPrice), costPrice: String(p.costPrice || 0), quantity: String(p.quantity), minStock: String(p.minStock) }); setShowModal(true); };
+    const openCreate = () => { setEditing(null); setForm({ name: '', description: '', sku: '', unitPrice: '', costPrice: '', quantity: '', minStock: '' }); setShowModal(true); };
+    const openEdit = (p: any) => { setEditing(p); setForm({ name: p.name, description: p.description || '', sku: p.sku || '', unitPrice: String(p.unitPrice), costPrice: String(p.costPrice || 0), quantity: String(p.quantity), minStock: String(p.minStock) }); setShowModal(true); };
     const openDetails = (p: any) => { setSelectedProduct(p); setShowDetailModal(true); };
 
     const handleSave = async () => {
@@ -106,9 +106,15 @@ export default function ProductsPage() {
                     <div className="glass-card w-full max-w-lg p-8 space-y-6 animate-in zoom-in-95 duration-300 bg-white" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center"><h3 className="text-2xl font-black text-slate-900 tracking-tight">{editing ? 'Editar' : 'Novo'} Produto</h3><button onClick={() => setShowModal(false)} className="p-2 text-slate-500 hover:text-slate-600 bg-slate-100 rounded-xl"><X size={24} /></button></div>
                         <div className="space-y-4">
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Nome do Produto *</label>
-                                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Nome comercial" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all text-sm" />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Nome do Produto *</label>
+                                    <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Nome comercial" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all text-sm" />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">SKU / Referência</label>
+                                    <input value={form.sku} onChange={e => setForm({ ...form, sku: e.target.value })} placeholder="Ex: BIKE-001" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all text-sm" />
+                                </div>
                             </div>
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Descrição</label>
